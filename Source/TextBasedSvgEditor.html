@@ -9,9 +9,12 @@
 	<label>SVG as Text:</label>
 	<button onclick="buttonNew_Clicked();">New</button>
 	<button onclick="buttonDemo_Clicked();">Demo</button>
+	<label>Load:</label>
+	<input type="file" onchange="inputFileToLoad_Changed(this);" />
+	<button onclick="buttonSave_Clicked();">Save</button>
 	<br />
 	<textarea
-		id="textareaSVGAsText" cols="80" rows="20" onchange="textareaSVGAsText_Changed();"
+		id="textareaSvgAsText" cols="80" rows="20" onchange="textareaSvgAsText_Changed();"
 	>
 	</textarea><br />
 	<label>Rendered Image:</label><br />
@@ -22,14 +25,47 @@
 
 function body_KeyDown()
 {
-	textareaSVGAsText_Changed();
+	textareaSvgAsText_Changed();
 }
 
 function buttonDemo_Clicked()
 {
-	var textareaSVGAsText = document.getElementById("textareaSVGAsText");
-	textareaSVGAsText.value = svgDemoAsText();
-	textareaSVGAsText_Changed();
+	var textareaSvgAsText = document.getElementById("textareaSvgAsText");
+	textareaSvgAsText.value = svgDemoAsText();
+	textareaSvgAsText_Changed();
+}
+
+function buttonSave_Clicked()
+{
+	var d = document;
+
+	var textareaSvgAsText = d.getElementById("textareaSvgAsText");
+	var textToSave = textareaSvgAsText.value;
+
+	var textToSaveAsBlob = new Blob([textToSave], {type:"text/xml"});
+	var textToSaveAsUrl = window.URL.createObjectURL(textToSaveAsBlob);
+
+	var downloadLink = d.createElement("a");
+	downloadLink.download = "Image.svg";
+	downloadLink.href = textToSaveAsUrl;
+	downloadLink.click();
+}
+
+function inputFileToLoad_Changed(inputFileToLoad)
+{
+	var file = inputFileToLoad.files[0];
+	if (file != null)
+	{
+		var fileReader = new FileReader();
+		fileReader.onload = (event) =>
+		{
+			var fileLoadedAsText = event.target.result;
+			var d = document;
+			var textareaSvg = d.getElementById("textareaSvgAsText");
+			textareaSvg.value = fileLoadedAsText;
+		};
+		fileReader.readAsText(file);
+	}
 }
 
 function svgDemoAsText()
@@ -86,9 +122,9 @@ function svgDemoAsText()
 
 function buttonNew_Clicked()
 {
-	var textareaSVGAsText = document.getElementById("textareaSVGAsText");
-	textareaSVGAsText.value = svgNewAsText();
-	textareaSVGAsText_Changed();
+	var textareaSvgAsText = document.getElementById("textareaSvgAsText");
+	textareaSvgAsText.value = svgNewAsText();
+	textareaSvgAsText_Changed();
 }
 
 function svgNewAsText()
@@ -105,13 +141,14 @@ function svgNewAsText()
 	return svgAsText;
 }
 
-function textareaSVGAsText_Changed()
+function textareaSvgAsText_Changed()
 {
-	var textareaSVGAsText = document.getElementById("textareaSVGAsText");
-	var svgAsText = textareaSVGAsText.value;
+	var d = document;
+	var textareaSvgAsText = d.getElementById("textareaSvgAsText");
+	var svgAsText = textareaSvgAsText.value;
 	var svgAsTextEncoded = encodeURIComponent(svgAsText);
 	var svgAsDataURL = "data:image/svg+xml," + svgAsTextEncoded;
-	var svgAsImgElement = document.createElement("img");
+	var svgAsImgElement = d.createElement("img");
 	svgAsImgElement.src = svgAsDataURL;
 	var divImage = document.getElementById("divImage");
 	divImage.innerHTML = "";
